@@ -15,6 +15,7 @@ import { resolve, dirname } from 'path';
 import { readFile } from 'fs/promises';
 import { mkdirSync } from 'fs';
 import { fileURLToPath } from 'url';
+import { crc32 } from 'zlib';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
@@ -88,15 +89,76 @@ function normalizeTextForATS(html) {
   }
 }
 
+/**
+ * Verify every inline `data:image/png;base64,...` in the HTML is an intact PNG.
+ *
+ * Why this exists: on 2026-08-12 a CV variant was built by copying the QR-code
+ * data URI from a previous CV, and a handful of base64 characters were mangled
+ * in the copy. The blob still decoded, still reported 300x300, and Chromium
+ * still rendered it — but only the top half, because the IDAT zlib stream was
+ * damaged partway through. It reached a generated resume PDF and was caught by
+ * eye, not by the tooling.
+ *
+ * Every PNG chunk carries a CRC32 of its own contents, so partial corruption is
+ * detectable exactly and with no false positives. Browsers deliberately ignore
+ * these CRCs and render what they can; a document about to be sent to an
+ * employer should not.
+ */
+function verifyEmbeddedPNGs(html) {
+  const PNG_SIG = Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]);
+  const issues = [];
+  const re = /data:image\/png;base64,([A-Za-z0-9+/=]+)/g;
+  let m;
+  let n = 0;
+
+  while ((m = re.exec(html)) !== null) {
+    n += 1;
+    const label = `inline PNG #${n}`;
+    const buf = Buffer.from(m[1], 'base64');
+
+    if (buf.length < 8 || !buf.subarray(0, 8).equals(PNG_SIG)) {
+      issues.push(`${label}: not a valid PNG (bad signature)`);
+      continue;
+    }
+
+    let off = 8;
+    let sawIEND = false;
+    while (off + 8 <= buf.length) {
+      const len = buf.readUInt32BE(off);
+      const type = buf.subarray(off + 4, off + 8).toString('latin1');
+      const dataEnd = off + 8 + len;
+      if (dataEnd + 4 > buf.length) {
+        issues.push(`${label}: chunk ${type} is truncated`);
+        break;
+      }
+      const stored = buf.readUInt32BE(dataEnd);
+      const actual = crc32(buf.subarray(off + 4, dataEnd)) >>> 0;
+      if (actual !== stored) {
+        issues.push(`${label}: chunk ${type} failed its CRC — the image data is corrupt and will render only partially`);
+        break;
+      }
+      if (type === 'IEND') { sawIEND = true; break; }
+      off = dataEnd + 4;
+    }
+    if (!sawIEND && !issues.some((i) => i.startsWith(label))) {
+      issues.push(`${label}: no IEND chunk — the image is truncated`);
+    }
+  }
+
+  return { count: n, issues };
+}
+
 async function generatePDF() {
   const args = process.argv.slice(2);
 
   // Parse arguments
-  let inputPath, outputPath, format = 'a4';
+  let inputPath, outputPath, format = 'a4', allowCorruptImages = false;
 
   for (const arg of args) {
     if (arg.startsWith('--format=')) {
       format = arg.split('=')[1].toLowerCase();
+    } else if (arg === '--allow-corrupt-images') {
+      allowCorruptImages = true;
     } else if (!inputPath) {
       inputPath = arg;
     } else if (!outputPath) {
@@ -137,6 +199,22 @@ async function generatePDF() {
     /file:\/\/([^'")]+)\.(woff2?|ttf|otf)['"]?\)/g,
     `file://$1.$2')`
   );
+
+  // Verify inline images before rendering — a corrupt QR code or logo renders
+  // half-drawn and is easy to miss in a generated PDF. See verifyEmbeddedPNGs.
+  const imgCheck = verifyEmbeddedPNGs(html);
+  if (imgCheck.issues.length > 0) {
+    console.error(`❌ Corrupt inline image(s) detected in ${inputPath}:`);
+    for (const issue of imgCheck.issues) console.error(`   - ${issue}`);
+    if (!allowCorruptImages) {
+      console.error('   Refusing to build a document with a broken image.');
+      console.error('   Fix the source (re-copy the image data), or pass --allow-corrupt-images to override.');
+      process.exit(1);
+    }
+    console.error('   --allow-corrupt-images set; continuing anyway.');
+  } else if (imgCheck.count > 0) {
+    console.log(`🔎 Inline images: ${imgCheck.count} verified intact (PNG chunk CRCs OK)`);
+  }
 
   // Normalize text for ATS compatibility (issue #1)
   const normalized = normalizeTextForATS(html);
