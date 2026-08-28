@@ -1,5 +1,9 @@
 # Personal data (user fills these)
 cv.md
+article-digest.md
+interview-prep/*
+!interview-prep/.gitkeep
+data/career-context*.md
 data/applications.md
 data/pipeline.md
 data/scan-history.tsv
@@ -50,6 +54,7 @@ bun.lock
 .claude/settings.local.json
 .claude/memory/
 career-dashboard
+dashboard.html
 package-lock.json
 
 # Playwright MCP server run artifacts (ephemeral, machine-local — never commit)
