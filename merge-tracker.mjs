@@ -283,6 +283,16 @@ if (!existsSync(APPS_FILE)) {
 }
 const appContent = readFileSync(APPS_FILE, 'utf-8');
 
+// Guard: this file is deprecated in favor of career-2026/data/tracker.md (frozen 2026-07-16).
+// Refuse to write to it rather than silently resurrecting a tracker everyone agreed to stop
+// using. CAREER_OPS_TRACKER can still point this script at a different file on purpose.
+if (!process.env.CAREER_OPS_TRACKER && /DEPRECATED \/ STALE/.test(appContent)) {
+  console.error(`❌ ${basename(APPS_FILE)} is marked DEPRECATED / STALE at the top of the file.`);
+  console.error('   The live tracker is career-2026/data/tracker.md — merge additions there instead.');
+  console.error('   Set CAREER_OPS_TRACKER=<path> if you really mean to write to this file.');
+  process.exit(1);
+}
+
 // One-time migration: rewrite existing report links so they resolve relative
 // to the tracker file's directory (see #760). Run with: node merge-tracker.mjs --migrate
 if (MIGRATE) {
