@@ -8,6 +8,10 @@ The portfolio that goes with this system is also open source: [cv-santiago](http
 
 **It will work out of the box, but it's designed to be made yours.** If the archetypes don't match your career, the modes are in the wrong language, or the scoring doesn't fit your priorities -- just ask. You (AI Agent) can edit the user's files. The user says "change the archetypes to data engineering roles" and you do it. That's the whole point.
 
+## ⚠️ One canonical local clone (added 2026-08-28)
+
+This repo's local path is `~/Documents/Projects/career-ops`. A second clone at `~/Desktop/career-ops`, frozen since April 2026, caused a real incident on 2026-08-28: a resume got built from its stale, pre-house-style CV template and nearly went out under the wrong brand before Joel caught it by eye. That clone has since been deleted. **Never let a second local clone of this repo exist.** If one is ever found, verify it against this path (git remote, last commit date, and — critically — its gitignored user-layer files, which never sync via git and can diverge silently) before trusting or deleting anything in it.
+
 ## Data Contract (CRITICAL)
 
 There are two layers. Read `DATA_CONTRACT.md` for the full list.
