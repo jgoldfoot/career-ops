@@ -13,7 +13,7 @@
 import { chromium } from 'playwright';
 import { resolve, dirname } from 'path';
 import { readFile } from 'fs/promises';
-import { mkdirSync } from 'fs';
+import { mkdirSync, existsSync, readFileSync } from 'fs';
 import { fileURLToPath } from 'url';
 import { crc32 } from 'zlib';
 
@@ -21,6 +21,92 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 
 // Ensure output directory exists (fresh setup)
 mkdirSync(resolve(__dirname, 'output'), { recursive: true });
+
+/**
+ * Reserve the dated filename that is the permanent record of this build.
+ *
+ * WHY THIS EXISTS (2026-08-28, Joel's approval).
+ * This script used to write only the caller-supplied path, which is a fixed
+ * name per company — "Joel Goldfoot - Resume - Vanta.pdf". Every rebuild
+ * therefore overwrote, in place, the exact document a company had already
+ * received. That is evidence destruction, and it had already cost the record:
+ *
+ *   Vanta was applied 2026-07-18. The Vanta resume on disk is dated 2026-08-02,
+ *   because a rebuild that day overwrote it. THE RESUME VANTA ACTUALLY RECEIVED
+ *   NO LONGER EXISTS. That was the pipeline's highest-scored role.
+ *
+ * The same collision is why the OpenAI application of 2026-08-23 has two
+ * candidate builds and no way to tell which was uploaded.
+ *
+ * THE RULE: the dated file is the record and is NEVER overwritten. The
+ * stable-name file is a convenience pointer to the most recent build, and
+ * callers, templates and existing workflows keep working unchanged.
+ *
+ * Same-day rebuilds do not collide destructively: an identical rebuild reuses
+ * the dated file, and a CHANGED rebuild gets " (2)", " (3)", ... so that both
+ * versions survive. A build must never fail for this reason — a hard error here
+ * would just push people back to hand-naming files.
+ *
+ * Register what was sent in career-2026/data/artifacts.md (criteria.md §7 r7a).
+ */
+/**
+ * Content fingerprint of a PDF, ignoring the per-build metadata Chromium
+ * randomises: /CreationDate, /ModDate, and the trailer /ID pair. Two renders of
+ * the same HTML produce the same fingerprint; a real content change does not.
+ * crc32 is already imported for this file's other uses and is plenty here —
+ * this decides "reuse or add a sibling", never anything security-sensitive.
+ */
+function pdfFingerprint(buf) {
+  const s = buf
+    .toString('latin1')
+    .replace(/\/(?:CreationDate|ModDate)\s*\([^)]*\)/g, '')
+    .replace(/\/ID\s*\[\s*(?:<[0-9A-Fa-f]*>\s*)+\]/g, '');
+  return `${s.length}:${crc32(Buffer.from(s, 'latin1')) >>> 0}`;
+}
+
+function reserveDatedPath(targetPath, pendingBuffer) {
+  const dir = dirname(targetPath);
+  const base = targetPath.slice(dir.length + 1);
+  const dot = base.lastIndexOf('.');
+  const stem = dot === -1 ? base : base.slice(0, dot);
+  const ext = dot === -1 ? '' : base.slice(dot);
+
+  // Local date, not UTC: a build at 5pm PDT must not stamp tomorrow.
+  const d = new Date();
+  const stamp = [
+    d.getFullYear(),
+    String(d.getMonth() + 1).padStart(2, '0'),
+    String(d.getDate()).padStart(2, '0'),
+  ].join('-');
+
+  const first = `${dir}/${stem} - ${stamp}${ext}`;
+  if (!existsSync(first)) return { datedPath: first, note: '' };
+
+  // Already a dated file for today. If this build has the same CONTENT, reuse it.
+  // Not a byte comparison: Chromium stamps /CreationDate, /ModDate and a random
+  // trailer /ID into every PDF, so two builds of identical HTML are never
+  // byte-equal. Without normalising those out, the dedup below could never fire
+  // and a day of ordinary tweak-and-rebuild would litter the folder with
+  // "(2) (3) (4) ...", which is how a record folder stops being trusted.
+  if (pendingBuffer) {
+    try {
+      if (pdfFingerprint(readFileSync(first)) === pdfFingerprint(pendingBuffer)) {
+        return { datedPath: first, note: 'ℹ️  Identical to today\'s existing record; reused, nothing overwritten.' };
+      }
+    } catch { /* unreadable existing file: fall through to a numbered sibling */ }
+  }
+
+  for (let n = 2; n < 100; n++) {
+    const candidate = `${dir}/${stem} - ${stamp} (${n})${ext}`;
+    if (!existsSync(candidate)) {
+      return {
+        datedPath: candidate,
+        note: `⚠️  Today already had a DIFFERENT build; kept both. This one is "(${n})".`,
+      };
+    }
+  }
+  throw new Error(`Refusing to overwrite: 99 dated builds already exist for ${stem} on ${stamp}.`);
+}
 
 /**
  * Normalize text for ATS compatibility by converting problematic Unicode.
@@ -251,19 +337,26 @@ async function generatePDF() {
       preferCSSPageSize: false,
     });
 
-    // Write PDF
+    // Write PDF — dated file first, then the stable-name convenience copy.
+    // See datedPathFor() above for why the dated file is the one that matters.
     const { writeFile } = await import('fs/promises');
+    const { datedPath, note } = reserveDatedPath(outputPath, pdfBuffer);
+    await writeFile(datedPath, pdfBuffer);
     await writeFile(outputPath, pdfBuffer);
 
     // Count pages (approximate from PDF structure)
     const pdfString = pdfBuffer.toString('latin1');
     const pageCount = (pdfString.match(/\/Type\s*\/Page[^s]/g) || []).length;
 
-    console.log(`✅ PDF generated: ${outputPath}`);
+    console.log(`✅ PDF generated`);
+    console.log(`   🗄  Record  (keep):    ${datedPath}`);
+    console.log(`   🔗 Working (latest):  ${outputPath}`);
+    if (note) console.log(`   ${note}`);
     console.log(`📊 Pages: ${pageCount}`);
     console.log(`📦 Size: ${(pdfBuffer.length / 1024).toFixed(1)} KB`);
+    console.log(`📌 Record the dated file in career-2026/data/artifacts.md when this is sent (criteria.md §7 rule 7a).`);
 
-    return { outputPath, pageCount, size: pdfBuffer.length };
+    return { outputPath, datedPath, pageCount, size: pdfBuffer.length };
   } finally {
     await browser.close();
   }
