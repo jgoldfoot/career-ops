@@ -31,16 +31,22 @@
 - No nested tables
 - Distributed JD keywords: Summary (top 5), first bullet of each role, Skills section
 
-## PDF Design
+## PDF Design (Joel Goldfoot house style — 2026-06)
 
-- **Fonts**: Space Grotesk (headings, 600-700) + DM Sans (body, 400-500)
-- **Fonts self-hosted**: `fonts/`
-- **Header**: name in Space Grotesk 24px bold + gradient line `linear-gradient(to right, hsl(187,74%,32%), hsl(270,70%,45%))` 2px + contact row
-- **Section headers**: Space Grotesk 13px, uppercase, letter-spacing 0.05em, color cyan primary
-- **Body**: DM Sans 11px, line-height 1.5
-- **Company names**: accent purple color `hsl(270,70%,45%)`
-- **Margins**: 0.6in
-- **Background**: pure white
+Monochrome, executive, restrained. The candidate is a design leader, so the CV is a work sample: clean typography and hierarchy over decoration. ATS-safe (single column, selectable text, no multi-column, no text-in-images, no nested tables).
+
+- **Font**: DM Sans only (self-hosted in `fonts/`). One family throughout — no display face, no second font.
+- **Color**: monochrome. Ink `#1a1a2e`, muted `#555`. **No gradient line, no cyan/purple accents, no colored company names.** (The old colored template is retired.)
+- **Header**: QR code (`assets/qr-goldfoot.png`, links to portfolio) top-left at 92px, flex row beside name block. Name in DM Sans 700, 15px, uppercase, letter-spacing 0.04em. Title line bold 11.5px. Contact line 10.5px, ` | ` separators.
+- **Section headers**: DM Sans 700, 12px, uppercase, letter-spacing 0.05em, `#1a1a2e`, **no underline/rule**, space above.
+- **Body**: DM Sans 11px, line-height 1.6, `#222`.
+- **Highlights/bullets**: round disc bullets, padding-left 20px.
+- **Competencies**: plain monochrome inline list joined by ` · ` (NOT colored chips). The `{{COMPETENCIES}}` placeholder takes a `·`-separated string, not `<span>` tags.
+- **Company names**: bold dark `#1a1a2e` (not colored), period right-aligned.
+- **Margins**: 0.6in (set by generate-pdf.mjs).
+- **Background**: pure white.
+
+The cover letter shares this identity: same QR-less header (name + gradient-free rule omitted), DM Sans, monochrome, a dated `Re:` line, short paragraphs.
 
 ## Section order (optimized "6-second recruiter scan")
 

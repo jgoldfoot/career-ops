@@ -1,0 +1,14 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "dashboard",
+      "runtimeExecutable": "python3",
+      "runtimeArgs": [
+        "-c",
+        "import functools, http.server, socketserver; h = functools.partial(http.server.SimpleHTTPRequestHandler, directory='/Users/goldfoot/Documents/Projects/career-ops'); s = socketserver.TCPServer(('127.0.0.1', 4173), h); s.allow_reuse_address = True; print('serving career-ops on 4173'); s.serve_forever()"
+      ],
+      "port": 4173
+    }
+  ]
+}

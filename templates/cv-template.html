@@ -4,413 +4,99 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>{{NAME}} — CV</title>
+<!-- ============================================================
+     Career-ops CV template — Joel Goldfoot house style (2026-06).
+     Monochrome, executive, ATS-safe (single column, selectable text,
+     no multi-column, no text-in-images). QR top-left links to portfolio.
+     One sans family (DM Sans). Bold-caps section headers, no rules, no
+     color accents. Every generated CV inherits this look automatically.
+     ============================================================ -->
 <style>
-  @font-face {
-    font-family: 'Space Grotesk';
-    src: url('./fonts/space-grotesk-latin.woff2') format('woff2');
-    font-weight: 300 700;
-    font-style: normal;
-    font-display: swap;
-    unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
-  }
+  @font-face { font-family:'DM Sans'; src:url('./fonts/dm-sans-latin.woff2') format('woff2'); font-weight:100 1000; font-style:normal; }
+  @font-face { font-family:'DM Sans'; src:url('./fonts/dm-sans-latin-ext.woff2') format('woff2'); font-weight:100 1000; font-style:normal; }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  html { -webkit-print-color-adjust:exact; print-color-adjust:exact; }
+  body { font-family:'DM Sans',Arial,sans-serif; font-size:11px; line-height:1.6; color:#1a1a2e; background:#fff; }
+  .page { width:100%; max-width:{{PAGE_WIDTH}}; margin:0 auto; }
+  a { color:#1a1a2e; text-decoration:none; white-space:nowrap; }
 
-  @font-face {
-    font-family: 'Space Grotesk';
-    src: url('./fonts/space-grotesk-latin-ext.woff2') format('woff2');
-    font-weight: 300 700;
-    font-style: normal;
-    font-display: swap;
-    unicode-range: U+0100-02AF, U+0304, U+0308, U+0329, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
-  }
+  .header { display:flex; align-items:center; gap:18px; margin-bottom:22px; }
+  .header .qr { width:92px; height:92px; flex:0 0 92px; }
+  .header h1 { font-size:15px; font-weight:700; letter-spacing:0.04em; text-transform:uppercase; margin-bottom:3px; }
+  .header .title { font-size:11.5px; font-weight:700; color:#1a1a2e; margin-bottom:3px; }
+  .header .contact { font-size:10.5px; font-weight:400; color:#3a3a48; }
 
-  @font-face {
-    font-family: 'DM Sans';
-    src: url('./fonts/dm-sans-latin.woff2') format('woff2');
-    font-weight: 100 1000;
-    font-style: normal;
-    font-display: swap;
-    unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
-  }
+  .section { margin-bottom:16px; }
+  .section-title { font-size:12px; font-weight:700; text-transform:uppercase; letter-spacing:0.05em; color:#1a1a2e; margin-bottom:9px; }
+  .summary p { margin-bottom:9px; color:#222; }
+  .summary p:last-child { margin-bottom:0; }
+  em { font-style:italic; }
 
-  @font-face {
-    font-family: 'DM Sans';
-    src: url('./fonts/dm-sans-latin-ext.woff2') format('woff2');
-    font-weight: 100 1000;
-    font-style: normal;
-    font-display: swap;
-    unicode-range: U+0100-02AF, U+0304, U+0308, U+0329, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
-  }
+  .comps { font-size:10.5px; line-height:1.7; color:#222; }
 
-  * {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-  }
+  .job { margin-bottom:13px; }
+  .job-head { display:flex; justify-content:space-between; align-items:baseline; gap:12px; }
+  .job-co { font-size:12px; font-weight:700; color:#1a1a2e; }
+  .job-period { font-size:10.5px; color:#555; white-space:nowrap; }
+  .job-role { font-size:11px; font-weight:600; color:#333; margin-bottom:5px; }
+  .job-role .loc { font-weight:400; color:#777; }
+  .job ul { list-style:disc; padding-left:20px; margin-top:5px; }
+  .job li { font-size:10.5px; line-height:1.55; margin-bottom:4px; color:#2a2a2a; }
+  .job li strong { font-weight:700; }
 
-  html {
-    -webkit-print-color-adjust: exact;
-    print-color-adjust: exact;
-  }
+  .pub { margin-bottom:8px; }
+  .pub .pt { font-weight:700; font-size:11px; }
+  .pub .pd { font-size:10.5px; color:#333; }
+  .pub a { text-decoration:underline; }
 
-  body {
-    font-family: 'DM Sans', sans-serif;
-    font-size: 11px;
-    line-height: 1.5;
-    color: #1a1a2e;
-    background: #ffffff;
-    padding: 0;
-    margin: 0;
-  }
+  .edu { margin-bottom:7px; font-size:10.5px; color:#2a2a2a; }
+  .edu b { font-weight:700; }
 
-  .page {
-    width: 100%;
-    max-width: {{PAGE_WIDTH}};
-    margin: 0 auto;
-    padding: 2px 0;
-  }
-
-  /* === HEADER === */
-  .header {
-    margin-bottom: 20px;
-  }
-
-  .header h1 {
-    font-family: 'Space Grotesk', sans-serif;
-    font-size: 28px;
-    font-weight: 700;
-    color: #1a1a2e;
-    letter-spacing: -0.02em;
-    margin-bottom: 6px;
-    line-height: 1.1;
-  }
-
-  .header-gradient {
-    height: 2px;
-    background: linear-gradient(to right, hsl(187, 74%, 32%), hsl(270, 70%, 45%));
-    border-radius: 1px;
-    margin-bottom: 10px;
-  }
-
-  .contact-row {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px 14px;
-    font-family: 'DM Sans', sans-serif;
-    font-size: 10.5px;
-    line-height: 1.4;
-    color: #555;
-  }
-
-  .contact-row a {
-    color: #555;
-    text-decoration: none;
-  }
-
-  .contact-row .separator {
-    color: #ccc;
-  }
-
-  /* === SECTIONS === */
-  .section {
-    margin-bottom: 18px;
-  }
-
-  .section-title {
-    font-family: 'Space Grotesk', sans-serif;
-    font-size: 12px;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.06em;
-    color: hsl(187, 74%, 32%);
-    border-bottom: 1.5px solid #e2e2e2;
-    padding-bottom: 4px;
-    margin-bottom: 10px;
-    line-height: 1.2;
-  }
-
-  /* === PROFESSIONAL SUMMARY === */
-  .summary-text {
-    font-size: 11px;
-    line-height: 1.7;
-    color: #2f2f2f;
-  }
-
-  /* Links must never break across lines */
-  a {
-    white-space: nowrap;
-  }
-
-  /* === CORE COMPETENCIES === */
-  .competencies-grid {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-  }
-
-  .competency-tag {
-    font-family: 'DM Sans', sans-serif;
-    font-size: 10px;
-    font-weight: 500;
-    color: hsl(187, 74%, 28%);
-    background: hsl(187, 40%, 95%);
-    padding: 4px 10px;
-    border-radius: 3px;
-    border: 1px solid hsl(187, 40%, 88%);
-  }
-
-  /* === WORK EXPERIENCE === */
-  .job {
-    margin-bottom: 14px;
-  }
-
-  .job-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: baseline;
-    gap: 12px;
-    margin-bottom: 4px;
-  }
-
-  .job-company {
-    font-family: 'Space Grotesk', sans-serif;
-    font-size: 12.5px;
-    font-weight: 600;
-    color: hsl(270, 70%, 45%);
-  }
-
-  .job-period {
-    font-size: 10.5px;
-    color: #777;
-    white-space: nowrap;
-  }
-
-  .job-role {
-    font-size: 11px;
-    font-weight: 600;
-    color: #333;
-    margin-bottom: 6px;
-  }
-
-  .job-location {
-    font-size: 10px;
-    color: #888;
-  }
-
-  .job ul {
-    padding-left: 18px;
-    margin-top: 6px;
-  }
-
-  .job li {
-    font-size: 10.5px;
-    line-height: 1.6;
-    color: #333;
-    margin-bottom: 4px;
-  }
-
-  .job li strong {
-    font-weight: 600;
-  }
-
-  /* === PROJECTS === */
-  .project {
-    margin-bottom: 12px;
-  }
-
-  .project-title {
-    font-family: 'Space Grotesk', sans-serif;
-    font-size: 11.5px;
-    font-weight: 600;
-    color: hsl(270, 70%, 45%);
-  }
-
-  .project-badge {
-    font-size: 9px;
-    font-weight: 500;
-    color: hsl(187, 74%, 32%);
-    background: hsl(187, 40%, 95%);
-    padding: 1px 6px;
-    border-radius: 2px;
-    margin-left: 6px;
-  }
-
-  .project-desc {
-    font-size: 10.5px;
-    color: #444;
-    margin-top: 3px;
-    line-height: 1.55;
-  }
-
-  .project-tech {
-    font-size: 9.5px;
-    color: #888;
-    margin-top: 3px;
-  }
-
-  /* === EDUCATION === */
-  .edu-item {
-    margin-bottom: 8px;
-  }
-
-  .edu-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: baseline;
-    gap: 12px;
-  }
-
-  .edu-title {
-    font-weight: 600;
-    font-size: 11px;
-    color: #333;
-  }
-
-  .edu-org {
-    color: hsl(270, 70%, 45%);
-    font-weight: 500;
-  }
-
-  .edu-year {
-    font-size: 10px;
-    color: #777;
-    white-space: nowrap;
-  }
-
-  .edu-desc {
-    font-size: 10px;
-    color: #666;
-    margin-top: 2px;
-    line-height: 1.5;
-  }
-
-  /* === CERTIFICATIONS === */
-  .cert-item {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) minmax(90px, max-content) 44px;
-    align-items: baseline;
-    gap: 12px;
-    margin-bottom: 6px;
-  }
-
-  .cert-title {
-    font-size: 10.5px;
-    font-weight: 500;
-    color: #333;
-    min-width: 0;
-  }
-
-  .cert-org {
-    color: hsl(270, 70%, 45%);
-    white-space: nowrap;
-  }
-
-  .cert-year {
-    font-size: 10px;
-    color: #777;
-    white-space: nowrap;
-    text-align: right;
-  }
-
-  /* === SKILLS === */
-  .skills-grid {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 6px 14px;
-  }
-
-  .skill-item {
-    font-size: 10.5px;
-    color: #444;
-  }
-
-  .skill-category {
-    font-weight: 600;
-    color: #333;
-    font-size: 10.5px;
-  }
-
-  /* === PRINT === */
-  @media print {
-    body {
-      -webkit-print-color-adjust: exact;
-      print-color-adjust: exact;
-    }
-
-    .page {
-      padding: 0;
-    }
-  }
-
-  /* === PAGE BREAK CONTROL === */
-  .avoid-break,
-  .job,
-  .project,
-  .edu-item,
-  .cert-item {
-    break-inside: avoid;
-    page-break-inside: avoid;
-  }
+  .avoid-break, .job, .pub, .edu { break-inside:avoid; page-break-inside:avoid; }
 </style>
 </head>
 <body>
 <div class="page">
 
-  <!-- HEADER -->
   <div class="header avoid-break">
-    <h1>{{NAME}}</h1>
-    <div class="header-gradient"></div>
-    <div class="contact-row">
-      <span>{{PHONE}}</span>
-      <span class="separator">|</span>
-      <span>{{EMAIL}}</span>
-      <span class="separator">|</span>
-      <a href="{{LINKEDIN_URL}}">{{LINKEDIN_DISPLAY}}</a>
-      <span class="separator">|</span>
-      <a href="{{PORTFOLIO_URL}}">{{PORTFOLIO_DISPLAY}}</a>
-      <span class="separator">|</span>
-      <span>{{LOCATION}}</span>
+    <img class="qr" src="data:image/png;base64,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" alt="{{LINKEDIN_DISPLAY}}">
+    <div>
+      <h1>{{NAME}}</h1>
+      <div class="title">{{TITLE_LINE}}</div>
+      <div class="contact">{{EMAIL}} &nbsp;|&nbsp; {{PHONE}} &nbsp;|&nbsp; {{LOCATION}} &nbsp;|&nbsp; <a href="{{PORTFOLIO_URL}}">{{PORTFOLIO_DISPLAY}}</a> &nbsp;|&nbsp; <a href="{{LINKEDIN_URL}}">{{LINKEDIN_DISPLAY}}</a></div>
     </div>
   </div>
 
-  <!-- PROFESSIONAL SUMMARY -->
   <div class="section avoid-break">
     <div class="section-title">{{SECTION_SUMMARY}}</div>
-    <div class="summary-text">{{SUMMARY_TEXT}}</div>
+    <div class="summary">{{SUMMARY_TEXT}}</div>
   </div>
 
-  <!-- CORE COMPETENCIES -->
-  <div class="section">
+  <div class="section avoid-break">
     <div class="section-title">{{SECTION_COMPETENCIES}}</div>
-    <div class="competencies-grid">
-      {{COMPETENCIES}}
-    </div>
+    <div class="comps">{{COMPETENCIES}}</div>
   </div>
 
-  <!-- WORK EXPERIENCE -->
   <div class="section">
     <div class="section-title">{{SECTION_EXPERIENCE}}</div>
     {{EXPERIENCE}}
   </div>
 
-  <!-- PROJECTS -->
   <div class="section avoid-break">
     <div class="section-title">{{SECTION_PROJECTS}}</div>
     {{PROJECTS}}
   </div>
 
-  <!-- EDUCATION -->
   <div class="section avoid-break">
     <div class="section-title">{{SECTION_EDUCATION}}</div>
     {{EDUCATION}}
   </div>
 
-  <!-- CERTIFICATIONS -->
   <div class="section avoid-break">
     <div class="section-title">{{SECTION_CERTIFICATIONS}}</div>
     {{CERTIFICATIONS}}
   </div>
 
-  <!-- SKILLS -->
   <div class="section avoid-break">
     <div class="section-title">{{SECTION_SKILLS}}</div>
     {{SKILLS}}
