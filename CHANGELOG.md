@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.10.1](https://github.com/jgoldfoot/career-ops/compare/career-ops-v1.10.0...career-ops-v1.10.1) (2026-08-30)
+
+
+### Bug Fixes
+
+* **pdf:** reject documents containing corrupt inline images ([2a9f723](https://github.com/jgoldfoot/career-ops/commit/2a9f7233fcc8b88f794ad8d8baec9315d8c3fb02))
+* refuse to write to applications.md once it's marked deprecated ([bde86a9](https://github.com/jgoldfoot/career-ops/commit/bde86a9d2a3b1c24b9d613ce4bbbb36b098332ff))
+
 ## [1.10.0](https://github.com/jgoldfoot/career-ops/compare/career-ops-v1.9.0...career-ops-v1.10.0) (2026-06-11)
 
 
