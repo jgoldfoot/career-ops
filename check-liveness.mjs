@@ -5,7 +5,8 @@
  *
  * Tests whether job posting URLs are still active or have expired.
  * Uses the same detection logic as scan.md step 7.5.
- * Zero Claude API tokens — pure Playwright.
+ * Zero Claude API tokens. Two rungs: a free public-API check first
+ * (liveness-api.mjs, no browser), then Playwright for everything else.
  *
  * Usage:
  *   node check-liveness.mjs <url1> [url2] ...
@@ -23,9 +24,21 @@ import {
   jitteredDelayMs,
   sleep,
 } from './liveness-browser.mjs';
+import { checkLivenessViaApi } from './liveness-api.mjs';
+
+const USAGE = `Usage:
+  node check-liveness.mjs [--no-fallback] [--throttle[=ms]] <url1> [url2] ...
+  node check-liveness.mjs [--no-fallback] [--throttle[=ms]] --file urls.txt
+  node check-liveness.mjs --help                  # print this usage block and exit
+  node check-liveness.mjs -h                      # alias for --help`;
 
 async function main() {
   const args = process.argv.slice(2);
+
+  if (args.includes('--help') || args.includes('-h')) {
+    console.log(USAGE);
+    return;
+  }
 
   // Portals like pracuj.pl serve a Cloudflare anti-bot wall to headless Chromium.
   // On a challenge we retry once in a headed browser (which clears it); pass
@@ -39,9 +52,9 @@ async function main() {
   const positional = args.filter((a) => a !== '--no-fallback' && a !== throttleArg);
 
   if (positional.length === 0) {
-    console.error('Usage: node check-liveness.mjs [--no-fallback] [--throttle[=ms]] <url1> [url2] ...');
-    console.error('       node check-liveness.mjs [--no-fallback] [--throttle[=ms]] --file urls.txt');
-    process.exit(1);
+    console.error(USAGE);
+    process.exitCode = 1;
+    return;
   }
 
   let urls;
@@ -58,36 +71,56 @@ async function main() {
   ].filter(Boolean);
   console.log(`Checking ${urls.length} URL(s)...${notes.length ? ` (${notes.join(', ')})` : ''}\n`);
 
-  const browser = await chromium.launch({ headless: true });
-  const page = await newLivenessPage(browser);
-  const headed = noFallback ? null : createHeadedPageProvider(chromium);
-  const getHeadedPage = headed ? () => headed.get() : undefined;
+  // Lazy browser: the API rung resolves ATS postings with no browser at all, so we
+  // only launch Playwright if a URL actually needs the fallback.
+  let browser = null, page = null, headed = null;
+  async function ensureBrowser() {
+    if (browser) return;
+    browser = await chromium.launch({ headless: true });
+    page = await newLivenessPage(browser);
+    headed = noFallback ? null : createHeadedPageProvider(chromium);
+  }
 
-  let active = 0, expired = 0, uncertain = 0;
+  let active = 0, expired = 0, uncertain = 0, viaApi = 0;
 
   // Sequential — project rule: never Playwright in parallel
   for (let i = 0; i < urls.length; i++) {
     const url = urls[i];
-    const { result, reason } = await checkUrlLivenessWithFallback(page, url, { getHeadedPage });
+    let result, reason, usedBrowser = false;
+
+    // Rung 1: zero-token ATS API check. A conclusive active/expired wins; otherwise fall through.
+    const api = await checkLivenessViaApi(url);
+    if (api) {
+      ({ result, reason } = api);
+      viaApi++;
+    } else {
+      // Rung 2: Playwright — handles non-ATS pages and inconclusive API results.
+      await ensureBrowser();
+      const getHeadedPage = headed ? () => headed.get() : undefined;
+      ({ result, reason } = await checkUrlLivenessWithFallback(page, url, { getHeadedPage }));
+      usedBrowser = true;
+    }
+
     const icon = { active: '✅', expired: '❌', uncertain: '⚠️' }[result];
-    console.log(`${icon} ${result.padEnd(10)} ${url}`);
+    console.log(`${icon} ${result.padEnd(10)} ${api ? '(api) ' : '      '}${url}`);
     if (result !== 'active') console.log(`           ${reason}`);
     if (result === 'active') active++;
     else if (result === 'expired') expired++;
     else uncertain++;
 
-    const wait = i < urls.length - 1 ? jitteredDelayMs(throttleBaseMs) : 0;
+    // Throttle only matters between browser checks (the API is cheap, not WAF-rate-limited).
+    const wait = usedBrowser && i < urls.length - 1 ? jitteredDelayMs(throttleBaseMs) : 0;
     if (wait) await sleep(wait);
   }
 
   if (headed) await headed.close();
-  await browser.close();
+  if (browser) await browser.close();
 
-  console.log(`\nResults: ${active} active  ${expired} expired  ${uncertain} uncertain`);
-  if (expired > 0 || uncertain > 0) process.exit(1);
+  console.log(`\nResults: ${active} active  ${expired} expired  ${uncertain} uncertain  (${viaApi} via API, no browser)`);
+  if (expired > 0 || uncertain > 0) process.exitCode = 1;
 }
 
 main().catch(err => {
   console.error('Fatal:', err.message);
-  process.exit(1);
+  process.exitCode = 1;
 });
