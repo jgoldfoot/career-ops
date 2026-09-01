@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="{{LANG}}">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{{NAME}} — CV</title>
+<!-- ============================================================
+     Career-ops CV template — Joel Goldfoot house style (2026-06).
+     Monochrome, executive, ATS-safe (single column, selectable text,
+     no multi-column, no text-in-images). QR top-left links to portfolio.
+     One sans family (DM Sans). Bold-caps section headers, no rules, no
+     color accents. Every generated CV inherits this look automatically.
+     ============================================================ -->
+<style>
+  @font-face { font-family:'DM Sans'; src:url('./fonts/dm-sans-latin.woff2') format('woff2'); font-weight:100 1000; font-style:normal; }
+  @font-face { font-family:'DM Sans'; src:url('./fonts/dm-sans-latin-ext.woff2') format('woff2'); font-weight:100 1000; font-style:normal; }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  html { -webkit-print-color-adjust:exact; print-color-adjust:exact; }
+  body { font-family:'DM Sans',Arial,sans-serif; font-size:11px; line-height:1.6; color:#1a1a2e; background:#fff; }
+  .page { width:100%; max-width:{{PAGE_WIDTH}}; margin:0 auto; }
+  a { color:#1a1a2e; text-decoration:none; white-space:nowrap; }
+
+  .header { display:flex; align-items:center; gap:18px; margin-bottom:22px; }
+  .header .qr { width:92px; height:92px; flex:0 0 92px; }
+  .header h1 { font-size:15px; font-weight:700; letter-spacing:0.04em; text-transform:uppercase; margin-bottom:3px; }
+  .header .title { font-size:11.5px; font-weight:700; color:#1a1a2e; margin-bottom:3px; }
+  .header .contact { font-size:10.5px; font-weight:400; color:#3a3a48; }
+
+  .section { margin-bottom:16px; }
+  .section-title { font-size:12px; font-weight:700; text-transform:uppercase; letter-spacing:0.05em; color:#1a1a2e; margin-bottom:9px; }
+  .summary p { margin-bottom:9px; color:#222; }
+  .summary p:last-child { margin-bottom:0; }
+  em { font-style:italic; }
+
+  .comps { font-size:10.5px; line-height:1.7; color:#222; }
+
+  .job { margin-bottom:13px; }
+  .job-head { display:flex; justify-content:space-between; align-items:baseline; gap:12px; }
+  .job-co { font-size:12px; font-weight:700; color:#1a1a2e; }
+  .job-period { font-size:10.5px; color:#555; white-space:nowrap; }
+  .job-role { font-size:11px; font-weight:600; color:#333; margin-bottom:5px; }
+  .job-role .loc { font-weight:400; color:#777; }
+  .job ul { list-style:disc; padding-left:20px; margin-top:5px; }
+  .job li { font-size:10.5px; line-height:1.55; margin-bottom:4px; color:#2a2a2a; }
+  .job li strong { font-weight:700; }
+
+  .pub { margin-bottom:8px; }
+  .pub .pt { font-weight:700; font-size:11px; }
+  .pub .pd { font-size:10.5px; color:#333; }
+  .pub a { text-decoration:underline; }
+
+  .edu { margin-bottom:7px; font-size:10.5px; color:#2a2a2a; }
+  .edu b { font-weight:700; }
+
+  .avoid-break, .job, .pub, .edu { break-inside:avoid; page-break-inside:avoid; }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <div class="header avoid-break">
+    <img class="qr" src="data:image/png;base64,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" alt="{{LINKEDIN_DISPLAY}}">
+    <div>
+      <h1>{{NAME}}</h1>
+      <div class="title">{{TITLE_LINE}}</div>
+      <div class="contact">{{EMAIL}} &nbsp;|&nbsp; {{PHONE}} &nbsp;|&nbsp; {{LOCATION}} &nbsp;|&nbsp; <a href="{{PORTFOLIO_URL}}">{{PORTFOLIO_DISPLAY}}</a> &nbsp;|&nbsp; <a href="{{LINKEDIN_URL}}">{{LINKEDIN_DISPLAY}}</a></div>
+    </div>
+  </div>
+
+  <div class="section avoid-break">
+    <div class="section-title">{{SECTION_SUMMARY}}</div>
+    <div class="summary">{{SUMMARY_TEXT}}</div>
+  </div>
+
+  <div class="section avoid-break">
+    <div class="section-title">{{SECTION_COMPETENCIES}}</div>
+    <div class="comps">{{COMPETENCIES}}</div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">{{SECTION_EXPERIENCE}}</div>
+    {{EXPERIENCE}}
+  </div>
+
+  <div class="section avoid-break">
+    <div class="section-title">{{SECTION_PROJECTS}}</div>
+    {{PROJECTS}}
+  </div>
+
+  <div class="section avoid-break">
+    <div class="section-title">{{SECTION_EDUCATION}}</div>
+    {{EDUCATION}}
+  </div>
+
+  <div class="section avoid-break">
+    <div class="section-title">{{SECTION_CERTIFICATIONS}}</div>
+    {{CERTIFICATIONS}}
+  </div>
+
+  <div class="section avoid-break">
+    <div class="section-title">{{SECTION_SKILLS}}</div>
+    {{SKILLS}}
+  </div>
+
+</div>
+</body>
+</html>
