@@ -59,3 +59,14 @@ package-lock.json
 
 # Playwright MCP server run artifacts (ephemeral, machine-local — never commit)
 .playwright-mcp/
+
+# --- User-layer data that must never reach this PUBLIC fork (added 2026-09-09) ---
+# `data/` is user-layer per DATA_CONTRACT.md, and .github/workflows/no-user-data.yml
+# already blocks it -- but ONLY `on: pull_request`. This fork commits directly to
+# main, so that guard is structurally bypassed and has never once fired here.
+#
+# data/pdf-index.tsv is written by generate-pdf.mjs and names the source HTML for
+# every document built -- i.e. the COMPANY and the DATE of each application. It was
+# committed on 2026-09-02 and would have published a live, dated application record
+# to a public repo. The job search is confidential.
+data/pdf-index.tsv
