@@ -1,0 +1,8 @@
+# Approved capability / fluency claims for outbound CVs and cover letters.
+# ONLY JOEL ADDS LINES HERE. One exact sentence per line, as it appears in the document text.
+# render-fallback.mjs refuses to render a source whose text contains a fluency, expertise or
+# proficiency claim ("expert-level", "expert-fluent", "fluent in", "fluency in", "proficient in")
+# unless the containing sentence is listed here verbatim.
+# Why: 2026-09-02 a build invented "I remain expert-fluent in Figma and hands-on in the work"
+# to satisfy a JD line. Joel: "This is a lie." It went out in two applications (rows 58, 65).
+# Canonical rule: career-2026/data/education-and-positioning.md, "Tooling honesty".

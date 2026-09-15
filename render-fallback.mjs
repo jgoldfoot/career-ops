@@ -40,6 +40,31 @@ const browser = await chromium.launch();
 const page = await browser.newPage();
 await page.goto(pathToFileURL(input).href, { waitUntil: 'networkidle' });
 await page.emulateMedia({ media: 'print' });
+
+// ── Capability-claim guard (added 2026-09-15) ────────────────────────────────
+// A build may not invent a fluency/expertise claim to satisfy a JD. Any sentence
+// in the rendered text that asserts tool fluency must be listed verbatim in
+// config/approved-claims.txt, which only Joel edits. Fails closed.
+import { readFileSync, existsSync } from 'fs';
+import { dirname, join } from 'path';
+import { fileURLToPath } from 'url';
+const here = dirname(fileURLToPath(import.meta.url));
+const claimsFile = join(here, 'config', 'approved-claims.txt');
+const approved = existsSync(claimsFile)
+  ? readFileSync(claimsFile, 'utf8').split('\n').map(l => l.trim()).filter(l => l && !l.startsWith('#'))
+  : [];
+const CLAIM = /\b(expert[- ]level|expert[- ]fluent|fluent in|fluency in|proficient in|proficiency in)\b/i;
+const bodyText = (await page.evaluate(() => document.body.innerText)).replace(/\s+/g, ' ');
+const sentences = bodyText.split(/(?<=[.!?])\s+/);
+const FIRST_PERSON = /\b(I|I'm|I've|I'd|my|me)\b/;  // a JD's own words quoted back are not a claim
+const offending = sentences.filter(s => CLAIM.test(s) && FIRST_PERSON.test(s) && !approved.includes(s.trim()));
+if (offending.length) {
+  console.error('REFUSED: unapproved capability claim(s) in ' + input + ':');
+  for (const s of offending) console.error('  > ' + s.trim());
+  console.error('If Joel confirms a claim is true, add the exact sentence to config/approved-claims.txt.');
+  await browser.close();
+  process.exit(2);
+}
 // The <title> becomes the PDF's /Title metadata, which an ATS or a reviewer can
 // see. Letter sources are cloned from earlier applications and have carried the
 // PREVIOUS employer's name here (Trustly letter shipped titled "Smartsheet",
