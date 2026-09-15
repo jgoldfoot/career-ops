@@ -40,6 +40,12 @@ const browser = await chromium.launch();
 const page = await browser.newPage();
 await page.goto(pathToFileURL(input).href, { waitUntil: 'networkidle' });
 await page.emulateMedia({ media: 'print' });
+// The <title> becomes the PDF's /Title metadata, which an ATS or a reviewer can
+// see. Letter sources are cloned from earlier applications and have carried the
+// PREVIOUS employer's name here (Trustly letter shipped titled "Smartsheet",
+// caught 2026-09-15). Force a neutral title; never trust the source's.
+await page.evaluate((t) => { document.title = t; },
+  isLetter ? 'Joel Goldfoot — Cover Letter' : 'Joel Goldfoot — CV');
 await page.pdf({ path: output, format: 'Letter', printBackground: true,
   margin: { top: m, bottom: m, left: m, right: m } });
 await browser.close();
