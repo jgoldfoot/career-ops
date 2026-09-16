@@ -81,7 +81,32 @@ function reserveArchivePath(dir, base, ext, freshPath) {
   return { path: candidate, reused: false };
 }
 
+// ── Capability-claim guard (wired here 2026-09-16) ───────────────────────────
+// Same rule as render-fallback.mjs: a build may not invent a first-person
+// fluency/expertise claim to satisfy a JD. This script renders through
+// generate-pdf.mjs, which BYPASSED the fallback renderer's guard, so both
+// 2026-09-16 builds ran unguarded until this was added. Fails closed.
+const CLAIM = /\b(expert[- ]level|expert[- ]fluent|fluent in|fluency in|proficient in|proficiency in)\b/i;
+const FIRST_PERSON = /\b(I|I'm|I've|I'd|my|me)\b/;
+function assertNoUnapprovedClaims(src) {
+  const claimsFile = join(ROOT, 'config', 'approved-claims.txt');
+  const approved = existsSync(claimsFile)
+    ? readFileSync(claimsFile, 'utf8').split('\n').map(l => l.trim()).filter(l => l && !l.startsWith('#'))
+    : [];
+  const body = readFileSync(src, 'utf8').split(/<body[^>]*>/i)[1] || '';
+  const text = body.replace(/<[^>]+>/g, ' ').replace(/&amp;/g, '&').replace(/&nbsp;/g, ' ').replace(/\s+/g, ' ');
+  const offending = text.split(/(?<=[.!?])\s+/).map(t => t.trim())
+    .filter(t => CLAIM.test(t) && FIRST_PERSON.test(t) && !approved.includes(t));
+  if (offending.length) {
+    console.error('REFUSED: unapproved capability claim(s) in ' + src + ':');
+    offending.forEach(t => console.error('  - ' + t));
+    console.error('If Joel confirms a claim is true, add the exact sentence to config/approved-claims.txt.');
+    process.exit(2);
+  }
+}
+
 function build({ src, sendName, archiveLabel, maxPages, exactPages }) {
+  assertNoUnapprovedClaims(src);
   const sendPath = join(OUT, `${sendName}.pdf`);
   execFileSync('node', [join(ROOT, 'generate-pdf.mjs'), src, sendPath, '--format=letter'],
     { cwd: ROOT, stdio: ['ignore', 'pipe', 'pipe'] });
