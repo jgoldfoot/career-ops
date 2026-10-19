@@ -36,6 +36,15 @@ if (!input || !output) {
 const isLetter = flags.includes('--letter-margins') || /cover-letter/i.test(input);
 const m = isLetter ? '0.3in' : '0.6in';
 
+// ── Embedded-asset integrity guard (added 2026-09-27) ────────────────────────
+// Runs BEFORE Chromium, because Chromium renders a corrupt data: URI as a
+// broken-image icon and exits 0. See asset-integrity.mjs for the incident.
+const { assertEmbeddedAssetsValid } = await import('./asset-integrity.mjs');
+const { assertContentRules } = await import('./content-guards.mjs');
+const { readFileSync: _read } = await import('fs');
+assertEmbeddedAssetsValid(input, _read(input, 'utf8'));
+assertContentRules(input, _read(input, 'utf8'));
+
 const browser = await chromium.launch();
 const page = await browser.newPage();
 await page.goto(pathToFileURL(input).href, { waitUntil: 'networkidle' });

@@ -1,0 +1,137 @@
+# Career-Ops Profile Configuration — Joel Goldfoot
+# Single source of truth for personal data across all modes.
+# Full calibration context: data/career-context-2026-06-10.md
+
+candidate:
+  full_name: "Joel Goldfoot"
+  email: "joel@goldfoot.com"
+  phone: "+1-415-894-0894"
+  location: "San Francisco, CA"
+  linkedin: "linkedin.com/in/goldfoot"
+  portfolio_url: "https://goldfoot.com"
+  github: "github.com/jgoldfoot"
+  orcid: "https://orcid.org/0009-0007-1843-2089"
+  twitter: ""
+
+target_roles:
+  # WIDENED 2026-06-12. Added the builder/architect track as CO-PRIMARY (more shots on
+  # goal), alongside the design-leadership track. This is a WIDENING, not a re-ranking.
+  #   Track A (market-legible design wrapper): VP of Product Design / Head of Design / CDO.
+  #   Track B (product-adjacent AI exec / architect): Head of AI Product Architecture,
+  #     VP of AI Experience, VP/Head of AI Product, Principal/Founding AI architect.
+  # Both tracks are fully co-primary. Joel leans toward an architect-with-small-pod shape,
+  # but that is a preference to explore, NOT a ranking: do NOT down-rank org-leadership
+  # roles for being headcount-heavy. Title token is the wrapper, not the test. (The real
+  # shape Joel wants is still being worked out; it is somewhere between these poles.)
+  primary:
+    # Track A — design wrapper (market-legible)
+    - "VP of Product Design"
+    - "Head of Design (VP scope)"
+    - "Chief Design Officer"
+    # Track B — builder/architect + product-adjacent AI exec (the 18-month ideal)
+    - "Head of AI Product Architecture"
+    - "VP of AI Experience"
+    - "VP / Head of AI Product"
+    - "Principal / Founding AI Product Architect (exec authority + small senior pod)"
+    - "CPO-adjacent staff / founding-builder roles at well-funded AI companies"
+  # Role-shape signals Joel is drawn to. Note as a PLUS when present; never penalize a
+  # role for lacking them, and never use them to down-rank org-leadership roles.
+  ideal_shape:
+    - "Architect mandate: owns how AI products get built (spec-to-ship), not just a design org"
+    - "Small senior pod (a few elite builders), not a large headcount-management org"
+    - "VP-level authority, comp clearing the floor, a seat where product behavior is decided"
+    - "Leverage from the operating model (one Builder = 5-8 contributors), not org size"
+  archetypes:
+    - name: "Head of AI Product Architecture / VP AI Experience (architect + small pod)"
+      level: "VP-level authority"
+      fit: "primary"
+    - name: "VP / Head of Product Design (AI-native product company)"
+      level: "VP/Executive"
+      fit: "primary"
+    - name: "VP / Head of AI Product (product-titled, AI-native)"
+      level: "VP"
+      fit: "primary"
+    - name: "Principal / Founding AI architect (top-tier lab or well-funded agent co)"
+      level: "VP-equivalent authority + comp required"
+      fit: "primary"
+    - name: "VP / Senior Director Design, Enterprise B2B SaaS (org leadership)"
+      level: "VP"
+      fit: "primary"     # e.g. Salesforce (scored 4.5) lives here — fully co-primary
+    - name: "Head of AI+UX / AI behavioral design strategy"
+      level: "Executive"
+      fit: "secondary"
+    - name: "Chief Design Officer"
+      level: "C-level"
+      fit: "secondary"
+
+narrative:
+  # Primary frame. Leads every piece of outreach. Credentials support; they don't open.
+  headline: "The behavioral layer is the new UX. I design how AI systems behave with users."
+  # Exit story in Joel's words (condensed; full version in modes/_profile.md).
+  # Structure: built it, proved it, peer-reviewed it, now scaling it.
+  # NEVER disparage Conviva in outbound material.
+  exit_story: >
+    I spent the last two years at Conviva building the operating model everyone
+    is now trying to hire for. I authored two production behavioral contracts
+    governing how our AI systems behave with users: one for Nexa, our
+    conversational analytics assistant, and one for our website sales agent. I built the AI-native pipeline where PM and design
+    co-author structured specs that go straight to shipped product. We ship
+    weekly with no frontend engineering in the pipeline. That work is proven and
+    published: I co-authored the peer-reviewed ACM CAIS 2026 paper on Nexa,
+    published How to Lead Design in the AI Era, and open-sourced BiModal Design.
+    What I can't do at Conviva is scale it.
+    I'm looking for a company where defining how AI systems behave with users
+    is the core product problem, with VP-level scope and authority. I'm not
+    leaving a bad situation. I'm leaving a proven one to run it at the scale
+    it deserves.
+  superpowers:
+    - "Behavioral Contracts: numbered, independently testable specifications governing AI behavior (two in production). NEVER state a clause count."
+    - "BiModal Design: open-source framework for interfaces serving humans and AI agents (40-75% agent task completion improvement on WebArena and ST-WebAgentBench)"
+    - "AI-Native Builder Model: spec-to-ship pipeline, weekly releases with no frontend engineering; one Builder produces what 5-8 traditional contributors produced"
+    - "Global design org leadership: UX, research, and content across three countries (US, India, China)"
+    - "Revenue-impact design strategy: $11M ARR product line built; $1M Wayfair deal saved"
+  # Proof points: use these numbers, never invent others.
+  proof_points:
+    - name: "Behavioral Contracts (production methodology)"
+      url: "https://ai-plus.design"
+      hero_metric: "Two production contracts at Conviva: Nexa, and the website sales agent. Repeatable methodology, not a one-off. NEVER state a clause count."
+    - name: "BiModal Design Framework (open source)"
+      url: "https://bimodal.design"
+      hero_metric: "40-75% improvement in agent task completion across WebArena and ST-WebAgentBench"
+    - name: "Nexa: Automatically Surfacing Business Impacting Insights in E-commerce Applications (ACM CAIS 2026)"
+      url: "https://doi.org/10.1145/3786335.3813185"
+      hero_metric: "Core contributing author (4 of 17, never 'lead author'). Agentic insight-discovery framework (Contrastive Stateful Trajectories); Joel owned the explainability/presentation layer. NOT about Behavioral Contracts — the paper never mentions them (verified full-text 2026-06-12)."
+    - name: "Revenue impact at Conviva"
+      url: "https://goldfoot.com"
+      hero_metric: "$11M ARR product line built; $1M Wayfair deal saved through design strategy intervention"
+    - name: "How to Lead Design in the AI Era (book, 2025)"
+      url: "https://ai-plus.design"
+      hero_metric: "The playbook for AI-era design leadership; introduces the Behavioral Contract framework"
+    - name: "ACM CHI 2024: SEAM-EZ"
+      url: "https://doi.org/10.1145/3613904.3642055"
+      hero_metric: "Peer-reviewed HCI co-authorship; U.S. patent holder"
+    - name: "Gartner Magic Quadrant 2025"
+      url: "https://goldfoot.com"
+      hero_metric: "Design strategy behind Conviva's Visionary placement (Digital Experience Monitoring)"
+
+compensation:
+  target_range: "$350K+ base"      # published target; anchor here, equity makes up the difference
+  currency: "USD"
+  minimum: "$300K base"            # hard floor; $300-350K evaluable only if equity/bonus bridges to $400K+ total AND mandate fit is high
+  # Exception class: top-tier AI labs / generational companies (Sierra-class)
+  # where equity is genuinely transformative: evaluate total package instead.
+  total_comp_target: "$500K+ total comp at AI-native companies and labs; enterprise SaaS scored against base + standard equity"  # confirmed 2026-06-10
+  location_flexibility: "Remote-first or SF hybrid, equally acceptable. No relocation."
+
+location:
+  country: "United States"
+  city: "San Francisco"
+  timezone: "PT"
+  visa_status: "No sponsorship needed"
+  onsite_availability: "SF hybrid fine. South Bay/Peninsula daily commute is a real negative. Onsite outside Bay Area: pass."
+
+cv:
+  output_format: "html" # "html" (default) or "latex"
+
+# Only render tailored PDFs for strong matches; Joel's search is quality-over-volume.
+auto_pdf_score_threshold: 4.0

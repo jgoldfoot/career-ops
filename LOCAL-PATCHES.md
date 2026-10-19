@@ -117,3 +117,45 @@ It renders through `generate-pdf.mjs`, writes the **neutrally named** sendable p
 **The cover letter's 0.3in margin is no longer a flag.** It is declared as `:root { --page-margin: 0.3in }` in the letter HTML, which `generate-pdf.mjs` reads for its `@page` rule. The margin now travels with the document instead of depending on the caller remembering it.
 
 **THE GENERAL LESSON, which is the reason this section is long: logic that must survive updates does not belong in a system-layer file.** A note saying "re-apply this after every update" is not a mechanism. `LOCAL-PATCHES.md` §1 was correct, prominent, and ignored.
+
+---
+
+## 3. `asset-integrity.mjs` — a corrupt embedded QR shipped three applications (added 2026-09-27)
+
+**NEW FILE, plus two call sites.** `asset-integrity.mjs` is local-layer and has no upstream counterpart, so an update will not wipe it — but the two one-line call sites are in system-layer files and **will** be wiped. Re-apply them after any `update-system.mjs apply`:
+
+- `make-application.mjs` — `import { assertEmbeddedAssetsValid } from './asset-integrity.mjs';` plus the call as the second line of `build()`.
+- `render-fallback.mjs` — the dynamic import and call immediately before `chromium.launch()`, so it runs *before* the browser starts.
+
+### What happened
+
+A CV authored from `templates/cv-template.html` on **2026-09-16** lost **225 characters** out of the LinkedIn QR's base64 data URI. That file was copied forward to TRM Labs the same day and to Xapo Bank on 09-23. All three built applications rendered a **broken-image icon with the alt text `/in/goldfoot` beside Joel's name**, at the top of page one.
+
+It was caught on **2026-09-27** only because Joel opened the PDF before sending it: *"Good thing I opened this before I sent it."*
+
+### Why nothing upstream caught it, and this is the point
+
+Every existing check passed, because none of them looks at the rendered result:
+
+- the base64 is a single unreadable line, so the corruption is invisible in a diff;
+- **Chromium renders a broken data: URI as a placeholder icon and exits 0**;
+- the **page count was unchanged** (2pp), so `make-application.mjs`'s page assertion passed;
+- the capability-claim guard reads text, not assets.
+
+**A page count is a check that the document is the right SHAPE. It is not a check that the document is CORRECT.** The build pipeline had no assertion about rendered content at all, and a visual defect in the most prominent position on the page walked straight through it.
+
+### The guard
+
+`checkEmbeddedAssets()` walks every embedded PNG chunk by chunk and verifies each CRC, so it catches both a length break and a single flipped byte mid-stream. Fails closed with exit 2 and writes no PDF.
+
+Regression-tested both directions before shipping: the three corrupt originals FAIL on the length check, a synthetic single-byte flip FAILS on the IDAT CRC, and the template plus all fifteen repaired sources PASS.
+
+### Canonical source for the QR
+
+`templates/cv-template.html`. The twelve CVs built between 2026-06-15 and 2026-09-11 all carry a byte-identical, valid copy of it, so it is proven in production. Restore from there, never reconstruct.
+
+### Scope of the repair (2026-09-27)
+
+Three HTML sources, three `to-send/` resumes, three `archive/` resumes, and the top-level `output/Joel Goldfoot - Resume.pdf` (which held the Xapo build). Verified after: every resume PDF now contains exactly **one** image object; a broken one contains two, the second being Chromium's placeholder. That one-vs-two count is a cheap post-render check worth keeping in mind.
+
+**Nothing had been submitted, so no application went out with the defect.**

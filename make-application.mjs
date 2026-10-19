@@ -32,6 +32,8 @@
  * Page counts are asserted, not hoped for: CV <= 2 pages, cover letter == 1.
  */
 import { execFileSync } from 'child_process';
+import { assertEmbeddedAssetsValid } from './asset-integrity.mjs';
+import { assertContentRules } from './content-guards.mjs';
 import { readFileSync, existsSync, mkdirSync, copyFileSync } from 'fs';
 import { createHash } from 'crypto';
 import { join, dirname } from 'path';
@@ -107,6 +109,8 @@ function assertNoUnapprovedClaims(src) {
 
 function build({ src, sendName, archiveLabel, maxPages, exactPages }) {
   assertNoUnapprovedClaims(src);
+  assertEmbeddedAssetsValid(src, readFileSync(src, 'utf8'));
+  assertContentRules(src, readFileSync(src, 'utf8'));
   const sendPath = join(OUT, `${sendName}.pdf`);
   execFileSync('node', [join(ROOT, 'generate-pdf.mjs'), src, sendPath, '--format=letter'],
     { cwd: ROOT, stdio: ['ignore', 'pipe', 'pipe'] });
